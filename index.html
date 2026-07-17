@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HO Report Tool V1.0</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">HO Report Tool</div>
+      <div class="subtitle">V1.0 UI Prototype</div>
+      <div class="nav">
+        <div class="group-title">Main</div>
+        <button class="active" onclick="showPage('upload', this)">Raw Excel Upload</button>
+        <div class="group-title">Helper Tables</div>
+        <button onclick="showPage('remarks', this)">Remarks</button>
+        <button onclick="showPage('category', this)">Category Update</button>
+        <button onclick="showPage('manual', this)">Manual Material Add</button>
+        <button onclick="showPage('block', this)">Material Block</button>
+        <button onclick="showPage('bakal', this)">Bakal Plan</button>
+        <button onclick="showPage('tolagaon', this)">Tolagaon Plan</button>
+        <div class="group-title">Output</div>
+        <button onclick="showPage('reports', this)">Reports Download</button>
+      </div>
+    </aside>
+    <main class="main">
+      <section class="header">
+        <div>
+          <h1 id="pageTitle">Raw Excel Upload</h1>
+          <p id="pageSubtitle">Upload raw Excel file and prepare working data.</p>
+        </div>
+        <div class="badge">UI Preview</div>
+      </section>
+
+      <section id="upload" class="page active">
+        <div class="summary-grid">
+          <div class="summary-card"><span>Raw Rows</span><strong>0</strong></div>
+          <div class="summary-card"><span>Manual Added Rows</span><strong>0</strong></div>
+          <div class="summary-card"><span>Working Rows</span><strong>0</strong></div>
+          <div class="summary-card warning"><span>Remarks Pending</span><strong>0</strong></div>
+          <div class="summary-card"><span>Category Records</span><strong>0</strong></div>
+          <div class="summary-card"><span>Material Block Records</span><strong>0</strong></div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h2>Raw Excel Upload</h2>
+            <div class="upload-box">
+              <div class="icon">Upload</div>
+              <strong>Upload Raw Excel File</strong>
+              <p>Supported format: .xlsx / .xls</p>
+              <button class="primary-btn" onclick="demoMessage('Upload button clicked')">Choose & Upload Excel</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Status</h2>
+            <div class="status ready">Data Ready</div>
+            <div class="activity-log">
+              <h3>Activity Log</h3>
+              <p>Upload ke baad activity yahan dikhegi.</p>
+              <p>Example: Raw file uploaded, manual rows added, remarks pending.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Raw Data Preview</h2>
+          <table>
+            <thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th></tr></thead>
+            <tbody>
+              <tr><td>9911</td><td>9920</td><td>9950001</td><td>Canine Creek Starter 1.2kg</td><td>0</td><td>22</td><td class="empty">blank</td></tr>
+              <tr><td>9911</td><td>9920</td><td>9950001</td><td>Canine Creek Starter 1.2kg</td><td>0</td><td>0</td><td>BCCS010523</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="remarks" class="page">
+        <div class="card">
+          <h2>Remarks</h2>
+          <div class="hint">Unique Plant + Storage Location yahan maintain honge. Delete dabane par entry remove hogi.</div>
+          <div class="actions"><div><button class="primary-btn" onclick="addRow('remarksTable', 3)">+ Add Row</button><button class="secondary-btn" onclick="demoMessage('Save Remarks clicked')">Save Remarks</button></div><button class="secondary-btn" onclick="demoMessage('Missing remarks popup clicked')">Check Missing Remarks</button></div>
+          <table id="remarksTable">
+            <thead><tr><th>Plant</th><th>Storage Location</th><th>Remarks</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input value="9911"></td><td><input value="9920"></td><td><input placeholder="Enter remarks"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="category" class="page">
+        <div class="card">
+          <h2>Category Update</h2>
+          <div class="hint">Excel se 2500 se 3000 rows copy-paste kar sakte ho. Replace button old category data clear karke naya data rakhega.</div>
+          <textarea placeholder="Material No.    Description    Category"></textarea>
+          <div class="actions"><div><button class="primary-btn" onclick="demoMessage('Replace Category Data clicked')">Replace Category Data</button><button class="secondary-btn" onclick="addRow('categoryTable', 3)">+ Add Row</button></div><button class="danger-btn" onclick="demoMessage('Clear Category clicked')">Clear Category</button></div>
+          <table id="categoryTable">
+            <thead><tr><th>Material No.</th><th>Description</th><th>Category</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input></td><td><input></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="manual" class="page">
+        <div class="card">
+          <h2>Manual Material Add</h2>
+          <div class="hint">Is table ka data raw file ke niche append hoga.</div>
+          <div class="actions"><button class="primary-btn" onclick="addRow('manualTable', 7)">+ Add Row</button><button class="secondary-btn" onclick="demoMessage('Save Manual Material clicked')">Save</button></div>
+          <table id="manualTable">
+            <thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="block" class="page">
+        <div class="card">
+          <h2>Material Block</h2>
+          <div class="hint">Report banate waqt yahan wale materials skip honge. Abhi upload flow me apply nahi hoga.</div>
+          <div class="actions"><button class="primary-btn" onclick="addRow('blockTable', 2)">+ Add Row</button><button class="secondary-btn" onclick="demoMessage('Save Material Block clicked')">Save</button></div>
+          <table id="blockTable">
+            <thead><tr><th>Material</th><th>Material Description</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="bakal" class="page">
+        <div class="card">
+          <h2>Bakal Plan</h2>
+          <div class="hint">Raw upload hote hi ye table clear hogi.</div>
+          <div class="actions"><button class="primary-btn" onclick="addRow('bakalTable', 6)">+ Add Row</button><button class="secondary-btn" onclick="demoMessage('Save Bakal Plan clicked')">Save</button><button class="danger-btn" onclick="demoMessage('Clear Bakal Plan clicked')">Clear</button></div>
+          <table id="bakalTable">
+            <thead><tr><th>Plant</th><th>Plant Name</th><th>Location</th><th>Material No.</th><th>Description</th><th>STO Qty</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tolagaon" class="page">
+        <div class="card">
+          <h2>Tolagaon Plan</h2>
+          <div class="hint">Raw upload hote hi ye table clear hogi.</div>
+          <div class="actions"><button class="primary-btn" onclick="addRow('tolagaonTable', 6)">+ Add Row</button><button class="secondary-btn" onclick="demoMessage('Save Tolagaon Plan clicked')">Save</button><button class="danger-btn" onclick="demoMessage('Clear Tolagaon Plan clicked')">Clear</button></div>
+          <table id="tolagaonTable">
+            <thead><tr><th>Plant</th><th>Plant Name</th><th>Location</th><th>Material No.</th><th>Description</th><th>STO Qty</th><th>Action</th></tr></thead>
+            <tbody><tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="reports" class="page">
+        <div class="card">
+          <h2>Reports Download</h2>
+          <div class="hint">Aap jab report logic batayenge, yahan generate/download buttons add honge.</div>
+          <button class="primary-btn" onclick="demoMessage('Generate Report clicked')">Generate Report</button>
+          <button class="secondary-btn" onclick="demoMessage('Download Excel clicked')">Download Excel</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
