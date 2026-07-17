@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HO Report Tool V2.1</title>
+  <title>HO Report Tool V2.2</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -11,11 +11,10 @@
 <div class="app">
   <aside class="sidebar">
     <div class="brand">HO Report Tool</div>
-    <div class="subtitle">V2.1 Working Pivot</div>
+    <div class="subtitle">V2.2 Upload Progress</div>
     <div class="nav">
       <div class="group-title">Main</div>
       <button class="active" onclick="showPage('upload', this)">Raw Excel Upload</button>
-
       <div class="group-title">Helper Tables</div>
       <button onclick="showPage('remarks', this)">Remarks</button>
       <button onclick="showPage('manual', this)">Manual Material Add</button>
@@ -23,7 +22,6 @@
       <button onclick="showPage('category', this)">Category Update</button>
       <button onclick="showPage('bakal', this)">Bakal Plan</button>
       <button onclick="showPage('tolagaon', this)">Tolagaon Plan</button>
-
       <div class="group-title">Reports</div>
       <button onclick="showPage('reports', this)">HO Stock Report</button>
     </div>
@@ -35,7 +33,7 @@
         <h1 id="pageTitle">Raw Excel Upload</h1>
         <p id="pageSubtitle">Excel upload karke actual pivot preview generate karein.</p>
       </div>
-      <div class="badge">V2.1</div>
+      <div class="badge">V2.2</div>
     </section>
 
     <section id="upload" class="page active">
@@ -59,6 +57,18 @@
             <button class="primary-btn" onclick="document.getElementById('fileInput').click()">Choose & Upload Excel</button>
             <button class="secondary-btn" onclick="loadSampleData()">Load Sample Data</button>
           </div>
+
+          <div class="progress-area" id="progressArea">
+            <div class="progress-head">
+              <span id="progressLabel">Waiting for upload...</span>
+              <strong id="progressPercent">0%</strong>
+            </div>
+            <div class="progress-bar">
+              <div id="progressFill"></div>
+            </div>
+            <div class="progress-detail" id="progressDetail">Rows loaded: 0 | Pending: 0</div>
+          </div>
+
           <div class="hint" id="uploadStatus">File upload karne par old raw data clear hoga aur naya data load hoga.</div>
         </div>
 
@@ -67,9 +77,7 @@
           <div class="status ready" id="dataStatus">Data Ready</div>
           <div class="activity-log">
             <h3>Activity Log</h3>
-            <div id="activityLog">
-              <p>Tool ready.</p>
-            </div>
+            <div id="activityLog"><p>Tool ready.</p></div>
           </div>
         </div>
       </div>
@@ -84,18 +92,7 @@
         </div>
         <div class="table-wrap">
           <table id="rawTable">
-            <thead>
-              <tr>
-                <th>Plant</th>
-                <th>Storage Location</th>
-                <th>Material</th>
-                <th>Material Description</th>
-                <th>Unrestricted</th>
-                <th>Transit and Transfer</th>
-                <th>Batch</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -106,19 +103,8 @@
       <div class="card">
         <h2>Remarks</h2>
         <div class="hint">Plant + Storage Location se Remarks match hoga. Remarks me <b>delete</b> likha hoga to wo data report me nahi aayega.</div>
-        <div class="actions">
-          <div>
-            <button class="primary-btn" onclick="syncRemarks()">Sync From Raw Data</button>
-            <button class="secondary-btn" onclick="addRemarksRow()">+ Add Row</button>
-          </div>
-          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
-        </div>
-        <div class="table-wrap">
-          <table id="remarksTable">
-            <thead><tr><th>Plant</th><th>Storage Location</th><th>Remarks</th><th>Action</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="actions"><div><button class="primary-btn" onclick="syncRemarks()">Sync From Raw Data</button><button class="secondary-btn" onclick="addRemarksRow()">+ Add Row</button></div><button class="secondary-btn" onclick="saveLocal()">Save Data</button></div>
+        <div class="table-wrap"><table id="remarksTable"><thead><tr><th>Plant</th><th>Storage Location</th><th>Remarks</th><th>Action</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
@@ -126,16 +112,8 @@
       <div class="card">
         <h2>Manual Material Add</h2>
         <div class="hint">Ye rows raw data ke niche append hongi.</div>
-        <div class="actions">
-          <button class="primary-btn" onclick="addManualRow()">+ Add Row</button>
-          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
-        </div>
-        <div class="table-wrap">
-          <table id="manualTable">
-            <thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="actions"><button class="primary-btn" onclick="addManualRow()">+ Add Row</button><button class="secondary-btn" onclick="saveLocal()">Save Data</button></div>
+        <div class="table-wrap"><table id="manualTable"><thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
@@ -143,16 +121,8 @@
       <div class="card">
         <h2>Material Block</h2>
         <div class="hint">HO Stock Report generate karte waqt yahan wale Material skip honge.</div>
-        <div class="actions">
-          <button class="primary-btn" onclick="addBlockRow()">+ Add Row</button>
-          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
-        </div>
-        <div class="table-wrap">
-          <table id="blockTable">
-            <thead><tr><th>Material</th><th>Material Description</th><th>Action</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="actions"><button class="primary-btn" onclick="addBlockRow()">+ Add Row</button><button class="secondary-btn" onclick="saveLocal()">Save Data</button></div>
+        <div class="table-wrap"><table id="blockTable"><thead><tr><th>Material</th><th>Material Description</th><th>Action</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
@@ -162,22 +132,12 @@
         <div class="hint">Category table abhi available hai. Pivot Sheet me category apply nahi ho rahi.</div>
         <textarea id="categoryPaste" placeholder="Material No.    Description    Category"></textarea>
         <button class="primary-btn" onclick="replaceCategoryData()">Replace Category Data</button>
-        <div class="table-wrap">
-          <table id="categoryTable">
-            <thead><tr><th>Material No.</th><th>Description</th><th>Category</th><th>Action</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table id="categoryTable"><thead><tr><th>Material No.</th><th>Description</th><th>Category</th><th>Action</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
-    <section id="bakal" class="page">
-      <div class="card"><h2>Bakal Plan</h2><div class="hint">Raw upload hote hi clear hoga. Aage ki working me use hoga.</div></div>
-    </section>
-
-    <section id="tolagaon" class="page">
-      <div class="card"><h2>Tolagaon Plan</h2><div class="hint">Raw upload hote hi clear hoga. Aage ki working me use hoga.</div></div>
-    </section>
+    <section id="bakal" class="page"><div class="card"><h2>Bakal Plan</h2><div class="hint">Raw upload hote hi clear hoga. Aage ki working me use hoga.</div></div></section>
+    <section id="tolagaon" class="page"><div class="card"><h2>Tolagaon Plan</h2><div class="hint">Raw upload hote hi clear hoga. Aage ki working me use hoga.</div></div></section>
 
     <section id="reports" class="page">
       <div class="card">
@@ -187,35 +147,20 @@
           <button class="tab" onclick="showReportTab('signature', this)">Signature</button>
           <button class="tab" onclick="showReportTab('final', this)">Final</button>
         </div>
-
         <div id="pivot" class="report-tab-content active">
           <div class="hint">Rows = Material + Material Description, Columns = Remarks, Values = Sum of Unrestricted. Remarks = delete aur Material Block exclude honge.</div>
-          <div class="flow-box">
-            <div>Raw Data</div><span>+</span><div>Manual Add</div><span>-</span><div>Remarks delete</div><span>-</span><div>Material Block</div><span>=</span><div>Pivot</div>
-          </div>
+          <div class="flow-box"><div>Raw Data</div><span>+</span><div>Manual Add</div><span>-</span><div>Remarks delete</div><span>-</span><div>Material Block</div><span>=</span><div>Pivot</div></div>
           <button class="primary-btn" onclick="generatePivot()">Generate Pivot Preview</button>
           <button class="secondary-btn" onclick="downloadPivotCsv()">Download Pivot CSV</button>
           <div class="result-info" id="pivotInfo">Pivot generate karne ke liye button dabayein.</div>
-          <div class="table-wrap">
-            <table id="pivotTable">
-              <thead><tr><th>Material</th><th>Material Description</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+          <div class="table-wrap"><table id="pivotTable"><thead><tr><th>Material</th><th>Material Description</th></tr></thead><tbody></tbody></table></div>
         </div>
-
-        <div id="signature" class="report-tab-content">
-          <div class="hint">Signature sheet ka logic pending hai. Aap next step me batayenge.</div>
-        </div>
-
-        <div id="final" class="report-tab-content">
-          <div class="hint">Final sheet ka logic pending hai. Aap next step me batayenge.</div>
-        </div>
+        <div id="signature" class="report-tab-content"><div class="hint">Signature sheet ka logic pending hai. Aap next step me batayenge.</div></div>
+        <div id="final" class="report-tab-content"><div class="hint">Final sheet ka logic pending hai. Aap next step me batayenge.</div></div>
       </div>
     </section>
   </main>
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>
