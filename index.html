@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HO Report Tool V2</title>
+  <title>HO Report Tool V2.1</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">HO Report Tool</div>
-    <div class="subtitle">V2 Pivot Preview</div>
+    <div class="subtitle">V2.1 Working Pivot</div>
     <div class="nav">
       <div class="group-title">Main</div>
       <button class="active" onclick="showPage('upload', this)">Raw Excel Upload</button>
+
       <div class="group-title">Helper Tables</div>
       <button onclick="showPage('remarks', this)">Remarks</button>
       <button onclick="showPage('manual', this)">Manual Material Add</button>
@@ -21,6 +23,7 @@
       <button onclick="showPage('category', this)">Category Update</button>
       <button onclick="showPage('bakal', this)">Bakal Plan</button>
       <button onclick="showPage('tolagaon', this)">Tolagaon Plan</button>
+
       <div class="group-title">Reports</div>
       <button onclick="showPage('reports', this)">HO Stock Report</button>
     </div>
@@ -30,9 +33,9 @@
     <section class="header">
       <div>
         <h1 id="pageTitle">Raw Excel Upload</h1>
-        <p id="pageSubtitle">Sample raw data paste/edit karke pivot preview dekhein.</p>
+        <p id="pageSubtitle">Excel upload karke actual pivot preview generate karein.</p>
       </div>
-      <div class="badge">V2</div>
+      <div class="badge">V2.1</div>
     </section>
 
     <section id="upload" class="page active">
@@ -45,29 +48,55 @@
         <div class="summary-card"><span>Material Block Records</span><strong id="blockCount">0</strong></div>
       </div>
 
-      <div class="card">
-        <h2>Raw Excel Upload / Raw Data Paste</h2>
-        <div class="hint">Abhi V2 me Excel upload demo button hai. Real Excel upload backend version me add hoga. Pivot test ke liye neeche raw rows edit/add kar sakte ho.</div>
-        <button class="primary-btn" onclick="demoMessage('Excel upload backend version me active hoga')">Choose & Upload Excel</button>
-        <button class="secondary-btn" onclick="addRawRow()">+ Add Raw Row</button>
-        <button class="secondary-btn" onclick="refreshCounts()">Refresh Counts</button>
+      <div class="grid">
+        <div class="card">
+          <h2>Raw Excel Upload</h2>
+          <div class="upload-box">
+            <div class="icon">Upload</div>
+            <strong>Upload Raw Excel File</strong>
+            <p>Supported: .xlsx / .xls / .csv</p>
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" hidden onchange="handleFileUpload(event)">
+            <button class="primary-btn" onclick="document.getElementById('fileInput').click()">Choose & Upload Excel</button>
+            <button class="secondary-btn" onclick="loadSampleData()">Load Sample Data</button>
+          </div>
+          <div class="hint" id="uploadStatus">File upload karne par old raw data clear hoga aur naya data load hoga.</div>
+        </div>
+
+        <div class="card">
+          <h2>Status</h2>
+          <div class="status ready" id="dataStatus">Data Ready</div>
+          <div class="activity-log">
+            <h3>Activity Log</h3>
+            <div id="activityLog">
+              <p>Tool ready.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <h2>Raw Data</h2>
+        <div class="actions">
+          <h2>Raw Data Preview</h2>
+          <div>
+            <button class="secondary-btn" onclick="addRawRow()">+ Add Raw Row</button>
+            <button class="danger-btn" onclick="clearRawData()">Clear Raw Data</button>
+          </div>
+        </div>
         <div class="table-wrap">
           <table id="rawTable">
             <thead>
               <tr>
-                <th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th>
+                <th>Plant</th>
+                <th>Storage Location</th>
+                <th>Material</th>
+                <th>Material Description</th>
+                <th>Unrestricted</th>
+                <th>Transit and Transfer</th>
+                <th>Batch</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td><input value="9911"></td><td><input value="9920"></td><td><input value="9950001"></td><td><input value="Canine Creek Starter 1.2kg"></td><td><input value="22"></td><td><input value="0"></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9911"></td><td><input value="9930"></td><td><input value="9950001"></td><td><input value="Canine Creek Starter 1.2kg"></td><td><input value="5"></td><td><input value="0"></td><td><input value="BCCS010523"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9912"></td><td><input value="9920"></td><td><input value="9950002"></td><td><input value="Drools Puppy 3kg"></td><td><input value="40"></td><td><input value="0"></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9912"></td><td><input value="9999"></td><td><input value="9950099"></td><td><input value="Blocked Item"></td><td><input value="99"></td><td><input value="0"></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -76,23 +105,18 @@
     <section id="remarks" class="page">
       <div class="card">
         <h2>Remarks</h2>
-        <div class="hint">Pivot banate waqt Plant + Storage Location se Remarks match hoga. Remarks = delete hone par row report se exclude hogi.</div>
+        <div class="hint">Plant + Storage Location se Remarks match hoga. Remarks me <b>delete</b> likha hoga to wo data report me nahi aayega.</div>
         <div class="actions">
           <div>
             <button class="primary-btn" onclick="syncRemarks()">Sync From Raw Data</button>
             <button class="secondary-btn" onclick="addRemarksRow()">+ Add Row</button>
           </div>
-          <button class="secondary-btn" onclick="refreshCounts()">Refresh Counts</button>
+          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
         </div>
         <div class="table-wrap">
           <table id="remarksTable">
             <thead><tr><th>Plant</th><th>Storage Location</th><th>Remarks</th><th>Action</th></tr></thead>
-            <tbody>
-              <tr><td><input value="9911"></td><td><input value="9920"></td><td><input value="HO"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9911"></td><td><input value="9930"></td><td><input value="QC"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9912"></td><td><input value="9920"></td><td><input value="Damage"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-              <tr><td><input value="9912"></td><td><input value="9999"></td><td><input value="delete"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -101,14 +125,15 @@
     <section id="manual" class="page">
       <div class="card">
         <h2>Manual Material Add</h2>
-        <div class="hint">Pivot preview me ye rows raw ke niche append hongi.</div>
-        <button class="primary-btn" onclick="addManualRow()">+ Add Row</button>
+        <div class="hint">Ye rows raw data ke niche append hongi.</div>
+        <div class="actions">
+          <button class="primary-btn" onclick="addManualRow()">+ Add Row</button>
+          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
+        </div>
         <div class="table-wrap">
           <table id="manualTable">
             <thead><tr><th>Plant</th><th>Storage Location</th><th>Material</th><th>Material Description</th><th>Unrestricted</th><th>Transit and Transfer</th><th>Batch</th><th>Action</th></tr></thead>
-            <tbody>
-              <tr><td><input value="9911"></td><td><input value="9920"></td><td><input value="9950003"></td><td><input value="Manual Added Material"></td><td><input value="12"></td><td><input value="0"></td><td><input></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -117,14 +142,15 @@
     <section id="block" class="page">
       <div class="card">
         <h2>Material Block</h2>
-        <div class="hint">Pivot generate karte waqt is list ke Material report se exclude honge.</div>
-        <button class="primary-btn" onclick="addBlockRow()">+ Add Row</button>
+        <div class="hint">HO Stock Report generate karte waqt yahan wale Material skip honge.</div>
+        <div class="actions">
+          <button class="primary-btn" onclick="addBlockRow()">+ Add Row</button>
+          <button class="secondary-btn" onclick="saveLocal()">Save Data</button>
+        </div>
         <div class="table-wrap">
           <table id="blockTable">
             <thead><tr><th>Material</th><th>Material Description</th><th>Action</th></tr></thead>
-            <tbody>
-              <tr><td><input value="9950099"></td><td><input value="Blocked Item"></td><td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -133,9 +159,15 @@
     <section id="category" class="page">
       <div class="card">
         <h2>Category Update</h2>
-        <div class="hint">Is report ke Pivot Sheet me category apply nahi ho rahi. Future report logic me use hogi.</div>
-        <textarea placeholder="Material No.    Description    Category"></textarea>
-        <button class="primary-btn" onclick="demoMessage('Category replace backend version me save hoga')">Replace Category Data</button>
+        <div class="hint">Category table abhi available hai. Pivot Sheet me category apply nahi ho rahi.</div>
+        <textarea id="categoryPaste" placeholder="Material No.    Description    Category"></textarea>
+        <button class="primary-btn" onclick="replaceCategoryData()">Replace Category Data</button>
+        <div class="table-wrap">
+          <table id="categoryTable">
+            <thead><tr><th>Material No.</th><th>Description</th><th>Category</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -163,7 +195,6 @@
           </div>
           <button class="primary-btn" onclick="generatePivot()">Generate Pivot Preview</button>
           <button class="secondary-btn" onclick="downloadPivotCsv()">Download Pivot CSV</button>
-
           <div class="result-info" id="pivotInfo">Pivot generate karne ke liye button dabayein.</div>
           <div class="table-wrap">
             <table id="pivotTable">
